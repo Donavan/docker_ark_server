@@ -1,2 +1,2 @@
-FROM docker pull jdonavan/steambase
+FROM jdonavan/steambase
 MAINTAINER Donavan Stanley <donavan.stanley@gmail.com>
