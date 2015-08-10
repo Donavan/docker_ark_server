@@ -1,0 +1,2 @@
+#!/bin/sh
+docker run --net="bridge" -v /home/donavan/ark/saved:/opt/steam/save --name ark_server_test2 -d --restart=on-failure:10 -p 27015:27015/udp -p 7777:7777/udp -p 32330:32330  $1 
