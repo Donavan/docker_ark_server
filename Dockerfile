@@ -21,7 +21,7 @@ RUN echo "session required pam_limits.so" >> /etc/pam.d/common-session
 USER steam
 
 # This is a cheezy way to force a rebuild every time they bump version numbers
-RUN echo "191" > /opt/steam/servers/ark_server_version.txt
+RUN echo "195" > /opt/steam/servers/ark_server_version.txt
 
 # Install the server
 RUN /home/steam/steamcmd/steamcmd.sh  +login anonymous +force_install_dir "/opt/steam/servers/ark" +app_update 376030 validate +quit
