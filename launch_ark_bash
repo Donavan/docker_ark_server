@@ -1,2 +1,0 @@
-#!/bin/sh
-docker run --net="bridge" -v /home/donavan/ark/saved:/opt/steam/save -p 27015:27015/udp -p 7777:7777/udp -p 32330:32330  -i -t $1 /bin/bash
