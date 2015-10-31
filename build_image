@@ -1,20 +1,29 @@
 #!/usr/bin/env ruby
+#
+#  This can be used to generate a Dockerfile and/or build an image of an Ark releas.
+#  It can also be used build an image from said Dockerfile.
+#  It is intended to be run periodically passing the -d and -t flags this will build 
+#  an image containing the latest version of Ark if a new version is available.
+#  
+#  Set this to run in a cronjob 
+#
 require 'erb'
 require 'net/http'
 require 'uri'
 require 'slop'
 
 opts = Slop.parse do |o|
-  o.string '-t', '--tag', 'the tag for the Docker image to build (if any)'
-  o.string '-v', '-version', 'Override the version number from arkdeicated.com/version', default: nil
-  o.bool '-d', '--dockerfile', 'create a new Dockerfile (defaults to true)', default: true
-  o.bool '-f', '--force', 'continue even if the arkdeicated.com/version matches our last good build'
-  o.bool  '-h', '--help', 'show help'
+  o.string '-t', '--tag', 	'the tag for the Docker image to build (if any)'
+  o.string '-v', '-version', 	'Override the version number from arkdeicated.com/version', 	default: nil
+
+  o.bool '-d', '--dockerfile', 	'create a new Dockerfile (defaults to true)', 		 	default: true
+  o.bool '-f', '--force', 	'continue even if the arkdeicated.com/version matches our last good build'
+  o.bool '-h', '--help', 	'show this message'
 end
 
 if opts.help?
   puts opts
-  exit 0
+  exit
 end
 
 built_version = File.exist?('.ark_version') ? IO.read('.ark_version') : '0'
@@ -25,7 +34,6 @@ if (ark_version == built_version) && !opts.force?
   exit
 end
 
-
 if opts.dockerfile?
   puts "Building Dockerfile for version #{ark_version}"
   dockerfile_template = ERB.new(IO.read('Dockerfile.erb'))
@@ -34,14 +42,15 @@ else
   puts 'Not creating Dockerfile'
 end
 
-if  opts[:tag].nil?
+if opts[:tag].nil?
   puts 'Not building image since a tag was not given.  Use --tag to specify a tag for the Docker image'
 else
-  puts "Starting docker build with tag #{opts[:tag]}"
-  if system "docker build -t #{opts[:tag]} ."
+  puts "Starting docker build with tag #{opts[:tag]}}:#{ark_version}"
+  if system "docker build -t #{opts[:tag]}:#{ark_version} ."
     File.open('.ark_version', 'w') {|f| f.write(ark_version) }
   else
     puts 'Docker build failed'
-   end
+    exit(-1)
+  end
 end
 
