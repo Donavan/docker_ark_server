@@ -45,8 +45,8 @@ end
 if opts[:tag].nil?
   puts 'Not building image since a tag was not given.  Use --tag to specify a tag for the Docker image'
 else
-  puts "Starting docker build with tag #{opts[:tag]}}:#{ark_version}"
-  if system "docker build -t #{opts[:tag]}:#{ark_version} ."
+  puts "Starting docker build with tag #{opts[:tag]}:#{ark_version}"
+  if system "docker build -t #{opts[:tag]} ."
     File.open('.ark_version', 'w') {|f| f.write(ark_version) }
   else
     puts 'Docker build failed'

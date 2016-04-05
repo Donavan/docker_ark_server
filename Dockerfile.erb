@@ -10,11 +10,14 @@ EXPOSE 7777/udp
 # RCON for remote console server access
 EXPOSE 32330
 
+VOLUME ["/opt/steam/mods"]
+
 USER root
 RUN echo "fs.file-max=100000" >>  /etc/sysctl.conf
 RUN echo "* soft nofile 100000" >> /etc/security/limits.conf
 RUN echo "* hard nofile 100000" >> /etc/security/limits.conf
 RUN echo "session required pam_limits.so" >> /etc/pam.d/common-session
+
 
 # From here on out we shouln't be root
 USER steam
@@ -23,7 +26,11 @@ USER steam
 RUN /usr/local/bin/install_steam_app 376030
 
 # Use the save folder on our VOLUME
-RUN ln -s /opt/steam/save/  ARK\ Survival\ Evolved\ Dedicated\ Server/ShooterGame/Saved
+RUN ln -s /opt/steam/save/ /home/steam/Steam/steamapps/common/ARK\ Survival\ Evolved\ Dedicated\ Server/ShooterGame/Saved
+
+# Use the mods folder on our VOLUME
+RUN ln -s /opt/steam/mods /home/steam/Steam/steamapps/common/ARK\ Survival\ Evolved\ Dedicated\ Server/ShooterGame/Content/Mods
+RUN ln -s /home/steam/Steam/steamapps/common/ARK\ Survival\ Evolved\ Dedicated\ Server/ShooterGame/Binaries/Linux/ShooterGameServer /home/steam/ark_server
 
 # We'll write the Ark version and a timestamp to the image so that we force everything below to be performed again each time we generate the file
 RUN echo "Ark Version: <%= ark_version %> from Dockerfile generated at: <%= Time.now.to_s %>" /opt/steam/servers/ark_server_version.txt
@@ -31,4 +38,5 @@ RUN echo "Ark Version: <%= ark_version %> from Dockerfile generated at: <%= Time
 # The first time a build is done this will be a no-op.  Following builds on the same host will just update the cached copy, saving a lot of time
 RUN /usr/local/bin/install_steam_app 376030
 
-CMD ["/opt/steam/servers/ark/ShooterGame/Binaries/Linux/ShooterGameServer", "TheIsland?listen?bRawSockets", "-server" ,"-log", "-USEALLAVAILABLECORES"]
+#CMD ["/home/steam/Steam/steamapps/common/ARK\ Survival\ Evolved\ Dedicated\ Server/ShooterGame/Binaries/Linux/ShooterGameServer", "TheIsland?listen?bRawSockets", "-server" ,"-log", "-USEALLAVAILABLECORES"]
+CMD ["/home/steam/ark_server", "TheIsland?listen?bRawSockets", "-server" ,"-log", "-USEALLAVAILABLECORES", "-servergamelog"]
